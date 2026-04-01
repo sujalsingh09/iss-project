@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISS Tracker</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+    <canvas id="starCanvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <div class="shooting-stars">
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+    </div>
+
+    <div class="container">
+
+        <!-- Header -->
+        <div class="header">
+            <div class="orbit-ring">
+                <div class="orbit-dot"></div>
+                <div class="orbit-icon">🛸</div>
+            </div>
+            <h1>ISS <span class="accent">TRACKER</span></h1>
+            <p class="subtitle">Real-time International Space Station monitor</p>
+        </div>
+
+        <!-- Google SSO -->
+        <div class="card sso-card">
+            <p class="card-label">Quick Access</p>
+            <div id="g_id_onload"
+                data-client_id="562986332624-ve35ln95hg7im5uflnv823arfeoht9p1.apps.googleusercontent.com"
+                data-callback="handleGoogleLogin"
+                data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                id="googleSignInBtn"
+                data-type="standard"
+                data-shape="pill"
+                data-theme="filled_black"
+                data-text="continue_with"
+                data-size="large"
+                data-logo_alignment="left">
+            </div>
+            <div class="user-info" id="userInfo" style="display:none;">
+                <img id="userAvatar" src="" alt="avatar" />
+                <div>
+                    <p class="user-name" id="userName"></p>
+                    <p class="user-email-text" id="userEmailText"></p>
+                </div>
+                <button class="btn-sm" onclick="logout()">Sign out</button>
+            </div>
+        </div>
+
+        <!-- Credentials -->
+        <div class="card">
+            <p class="card-label">Notification Config</p>
+            <div class="input-group">
+                <label>Gmail Address</label>
+                <input type="email" id="email" placeholder="your@gmail.com" oninput="saveToStorage()" />
+            </div>
+            <div class="input-group">
+                <label>
+                    App Password
+                    <a class="hint-link" href="https://myaccount.google.com/apppasswords" target="_blank">Get one →</a>
+                </label>
+                <input type="password" id="password" placeholder="16-character app password" />
+            </div>
+            <div class="row">
+                <div class="input-group">
+                    <label>Latitude</label>
+                    <input type="number" id="lat" placeholder="22.7196" step="any" oninput="saveToStorage()" />
+                </div>
+                <div class="input-group">
+                    <label>Longitude</label>
+                    <input type="number" id="lon" placeholder="75.8577" step="any" oninput="saveToStorage()" />
+                </div>
+            </div>
+            <p class="storage-note">💾 Email, lat & lon saved locally — password is never stored</p>
+            <div class="buttons">
+                <button class="btn start" onclick="startMonitoring()">▶ Start Monitoring</button>
+                <button class="btn stop" onclick="stopMonitoring()">⏹ Stop</button>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-box">
+            <div class="status-dot" id="statusDot"></div>
+            <div class="status-text-wrap">
+                <p class="card-label" style="margin-bottom:4px;">Monitor Status</p>
+                <p id="statusText">Not started yet.</p>
+            </div>
+        </div>
+
+        <!-- Live ISS Position -->
+        <div class="card">
+            <p class="card-label">🌍 Live ISS Position</p>
+            <div class="stats-grid">
+                <div class="stat-block">
+                    <p class="stat-label">Latitude</p>
+                    <p class="stat-value" id="issLat">—</p>
+                </div>
+                <div class="stat-block">
+                    <p class="stat-label">Longitude</p>
+                    <p class="stat-value" id="issLon">—</p>
+                </div>
+                <div class="stat-block">
+                    <p class="stat-label">Updated</p>
+                    <p class="stat-value sm" id="issTime">—</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map -->
+        <div class="card map-card">
+            <p class="card-label">📡 ISS Live Map</p>
+            <div id="map"></div>
+        </div>
+
+        <!-- Last Overhead -->
+        <div class="card">
+            <p class="card-label">📍 Last Overhead Pass</p>
+            <p class="stat-value sm" id="lastOverhead" style="color: var(--accent3);">Not detected yet in this session.</p>
+        </div>
+
+        <!-- History -->
+        <div class="card">
+            <p class="card-label">🕓 Overhead History</p>
+            <div class="history-list" id="historyList">
+                <p class="empty-state">No passes recorded yet.</p>
+            </div>
+            <button class="btn-clear" onclick="clearHistory()">Clear History</button>
+        </div>
+
+    </div>
+
+    <!-- Leaflet loaded before our JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module">
+        import { handleGoogleLogin, logout, startMonitoring, stopMonitoring, clearHistory, saveToStorage } from '/static/js/main.js';
+        window.handleGoogleLogin = handleGoogleLogin;
+        window.logout = logout;
+        window.startMonitoring = startMonitoring;
+        window.stopMonitoring = stopMonitoring;
+        window.clearHistory = clearHistory;
+        window.saveToStorage = saveToStorage;
+    </script>
+
+</body>
+</html>
