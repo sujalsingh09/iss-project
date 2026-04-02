@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISS Tracker — Sign Up</title>
+    <link rel="stylesheet" href="/static/css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono&display=swap" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <canvas id="starCanvas"></canvas>
+
+    <div class="auth-layout">
+        <div class="auth-left">
+            <div class="brand">
+                <span class="brand-icon">🛸</span>
+                <span class="brand-name">ISS Tracker</span>
+            </div>
+            <div class="auth-globe-preview">
+                <div class="globe-ring r1"></div>
+                <div class="globe-ring r2"></div>
+                <div class="globe-ring r3"></div>
+                <div class="globe-core">🌍</div>
+            </div>
+            <p class="auth-tagline">Join Mission<br><em>Control.</em></p>
+            <p class="auth-desc">Create your account and start tracking the ISS from anywhere on Earth.</p>
+        </div>
+
+        <div class="auth-right">
+            <div class="auth-card">
+                <h2>Create account</h2>
+                <p class="auth-card-sub">Begin your orbital mission</p>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% if google_client_id %}
+                    <div id="g_id_onload"
+                        data-client_id="{{ google_client_id }}"
+                        data-callback="handleGoogleAuth"
+                        data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin"
+                        data-type="standard"
+                        data-shape="pill"
+                        data-theme="filled_black"
+                        data-text="signup_with"
+                        data-size="large"
+                        data-width="320"
+                        data-logo_alignment="left">
+                    </div>
+                    <div class="divider"><span>or</span></div>
+                {% endif %}
+
+                <form method="POST" action="/signup">
+                    <div class="field">
+                        <label>Full Name</label>
+                        <input type="text" name="name" placeholder="Harsh" required />
+                    </div>
+                    <div class="field">
+                        <label>Email</label>
+                        <input type="email" name="email" placeholder="your@gmail.com" required />
+                    </div>
+                    <div class="field">
+                        <label>Password</label>
+                        <input type="password" name="password" placeholder="Min 8 characters" required minlength="8" />
+                    </div>
+                    <button type="submit" class="btn-primary">Create Account →</button>
+                </form>
+
+                <p class="auth-switch">
+                    Already have an account? <a href="/login">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/auth.js"></script>
+</body>
+</html>

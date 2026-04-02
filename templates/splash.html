@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISS Tracker</title>
+    <link rel="stylesheet" href="/static/css/splash.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <canvas id="starCanvas"></canvas>
+
+    <div class="splash-container">
+        <div class="logo-wrap">
+            <div class="ring ring-1"></div>
+            <div class="ring ring-2"></div>
+            <div class="ring ring-3"></div>
+            <div class="orbit-dot"></div>
+            <div class="core">🛸</div>
+        </div>
+
+        <h1 class="splash-title">
+            <span class="line-1">INTERNATIONAL</span>
+            <span class="line-2">SPACE STATION</span>
+            <span class="line-3">TRACKER</span>
+        </h1>
+
+        <p class="splash-sub">Real-time orbital tracking · Email alerts · 3D Globe</p>
+
+        <div class="splash-loader">
+            <div class="loader-bar"></div>
+        </div>
+
+        <p class="splash-status" id="splashStatus">Initializing systems...</p>
+    </div>
+
+    <script src="/static/js/splash.js"></script>
+</body>
+</html>
