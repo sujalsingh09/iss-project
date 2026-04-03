@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISS Tracker — Dashboard</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <span class="brand-icon">🛸</span>
+            <span class="brand-name">ISS<span class="accent">TRACKER</span></span>
+        </div>
+        <div class="topbar-center">
+            <div class="status-pill">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Not monitoring</span>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <button class="btn-theme" id="themeBtn" onclick="toggleTheme()">☀ Light</button>
+            {% if user.avatar %}
+                <img class="user-avatar" src="{{ user.avatar }}" alt="{{ user.name }}" />
+            {% else %}
+                <div class="user-avatar-initials">{{ user.name[0].upper() }}</div>
+            {% endif %}
+            <span class="user-name-top">{{ user.name }}</span>
+            <a href="/logout" class="btn-logout">Sign out</a>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <main class="dashboard-layout">
+
+        <!-- Globe -->
+        <section class="globe-section">
+            <canvas id="globeCanvas"></canvas>
+            <div class="globe-overlay-tl">
+                <p class="overlay-label">Latitude</p>
+                <p class="overlay-val" id="issLat">—</p>
+                <p class="overlay-label" style="margin-top:8px;">Longitude</p>
+                <p class="overlay-val" id="issLon">—</p>
+            </div>
+            <div class="globe-overlay-tr">
+                <p class="overlay-label">Last Updated</p>
+                <p class="overlay-val sm" id="issTime">—</p>
+            </div>
+        </section>
+
+        <!-- Side Panel -->
+        <aside class="side-panel">
+
+            <div class="panel-card">
+                <p class="panel-label">⚙ Mission Config</p>
+                <div class="field">
+                    <label>Gmail</label>
+                    <input type="email" id="email" placeholder="your@gmail.com" oninput="savePrefs()" value="{{ user.email }}" />
+                </div>
+                <div class="field">
+                    <label>App Password
+                        <a class="hint" href="https://myaccount.google.com/apppasswords" target="_blank">Get →</a>
+                    </label>
+                    <input type="password" id="password" placeholder="16-char app password" />
+                </div>
+            
+                <!-- Location toggle -->
+                <div class="location-row">
+                    <div class="location-row-left">
+                        <span class="location-label">Live Location</span>
+                        <span class="location-indicator" id="locationIndicator">Manual</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="locationToggle" />
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            
+                <div class="field-row" id="manualCoords">
+                    <div class="field">
+                        <label>Latitude</label>
+                        <input type="number" id="lat" placeholder="22.7196" step="any" oninput="savePrefs()" />
+                    </div>
+                    <div class="field">
+                        <label>Longitude</label>
+                        <input type="number" id="lon" placeholder="75.8577" step="any" oninput="savePrefs()" />
+                    </div>
+                </div>
+            
+                <p class="save-note">💾 Prefs auto-saved locally</p>
+                <div class="btn-row">
+                    <button class="btn-start" onclick="startMonitoring()">▶ Start</button>
+                    <button class="btn-stop" onclick="stopMonitoring()">⏹ Stop</button>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <p class="panel-label">📡 Live Stats</p>
+                <div class="stat-grid">
+                    <div class="stat">
+                        <span class="stat-l">Altitude</span>
+                        <span class="stat-v">~408 km</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-l">Speed</span>
+                        <span class="stat-v">27,600 km/h</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-l">Last Pass</span>
+                        <span class="stat-v" id="overheadStatus">—</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-l">Status</span>
+                        <span class="stat-v" id="nightStatus">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-card panel-history">
+                <p class="panel-label">🕓 Pass History</p>
+                <div class="history-list" id="historyList">
+                    {% if passes %}
+                        {% for p in passes %}
+                        <div class="history-item">
+                            <span class="h-num">#{{ loop.index }}</span>
+                            <span class="h-time">{{ p.timestamp }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="empty">No passes recorded yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        </aside>
+    </main>
+
+    <!-- THREE must load before globe.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script type="module" src="/static/js/dashboard.js"></script>
+
+    <!-- Location Permission Popup -->
+<div class="location-overlay" id="locationOverlay">
+    <div class="location-popup">
+        <div class="location-popup-icon">📍</div>
+        <h3>Use Your Live Location?</h3>
+        <p>ISS Tracker can automatically detect when the ISS is directly above you using your device's location — no manual coordinates needed.</p>
+        <p class="location-note">Your location is never stored on our servers. It stays on your device.</p>
+        <div class="location-popup-btns">
+            <button class="btn-allow" onclick="allowLocation()">Allow Access</button>
+            <button class="btn-skip"  onclick="skipLocation()">Skip for now</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
