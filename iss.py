@@ -7,14 +7,14 @@ REQUEST_TIMEOUT_SECONDS = 10
 
 def get_iss_position():
     response = requests.get(
-        url="http://api.open-notify.org/iss-now.json",
+        url="https://api.wheretheiss.at/v1/satellites/25544", 
         timeout=REQUEST_TIMEOUT_SECONDS
     )
     response.raise_for_status()
     data = response.json()
     return {
-        "latitude": float(data["iss_position"]["latitude"]),
-        "longitude": float(data["iss_position"]["longitude"]),
+        "latitude":  float(data["latitude"]),  
+        "longitude": float(data["longitude"]),   
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 

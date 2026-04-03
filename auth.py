@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_user, logout_user, login_required
+from flask_login import current_user, login_user, logout_user, login_required
 from flask_bcrypt import Bcrypt
 from models import db, User
 import os
@@ -33,6 +33,19 @@ def login():
     return render_template('login.html', google_client_id=GOOGLE_CLIENT_ID)
 
 
+@auth_bp.route('/onboarding', methods=['GET', 'POST'])
+@login_required
+def onboarding():
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        if len(password) < 8:
+            flash('Password must be at least 8 characters.', 'error')
+            return redirect(url_for('auth.onboarding'))
+        current_user.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+        db.session.commit()
+        return redirect(url_for('main.dashboard'))
+    return render_template('onboarding.html', user=current_user)
+
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -60,7 +73,7 @@ def google_auth():
         return {'error': 'Google login is not configured'}, 503
 
     payload = request.get_json(silent=True) or {}
-    token = payload.get('credential')
+    token   = payload.get('credential')
     if not token:
         return {'error': 'Missing credential'}, 400
 
@@ -76,6 +89,7 @@ def google_auth():
     name      = info.get('name', email.split('@')[0])
     avatar    = info.get('picture', '')
 
+    is_new_user = False
     user = User.query.filter_by(google_id=google_id).first()
     if not user:
         user = User.query.filter_by(email=email).first()
@@ -83,11 +97,17 @@ def google_auth():
             user.google_id = google_id
             user.avatar    = avatar
         else:
-            user = User(name=name, email=email, google_id=google_id, avatar=avatar)
+            user        = User(name=name, email=email, google_id=google_id, avatar=avatar)
+            is_new_user = True
             db.session.add(user)
         db.session.commit()
 
     login_user(user, remember=True)
+
+    # New Google users go to onboarding to set app password
+    if is_new_user or not user.password_hash:
+        return {'success': True, 'redirect': url_for('auth.onboarding')}
+
     return {'success': True, 'redirect': url_for('main.dashboard')}
 
 

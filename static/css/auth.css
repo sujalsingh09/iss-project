@@ -102,6 +102,39 @@ body {
     padding: 40px;
 }
 
+/* ── Onboarding ── */
+.onboard-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(99,179,237,0.06);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+}
+
+.onboard-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+}
+
+.onboard-initials {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #000;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.onboard-name  { font-size: 0.9rem; color: #fff; font-weight: 600; }
+.onboard-email { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
 .auth-card {
     width: 100%;
     max-width: 380px;
